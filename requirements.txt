@@ -8,6 +8,7 @@ anyio                     4.2.0            py39haa95532_0
 argon2-cffi               21.3.0             pyhd3eb1b0_0  
 argon2-cffi-bindings      21.2.0           py39h2bbff1b_0  
 arrow                     1.3.0                    pypi_0    pypi
+asgiref                   3.7.2                    pypi_0    pypi
 asttokens                 2.0.5              pyhd3eb1b0_0  
 async-lru                 2.0.4            py39haa95532_0  
 async-timeout             4.0.3                    pypi_0    pypi
@@ -21,6 +22,7 @@ brotli-python             1.0.9            py39hd77b12b_7
 ca-certificates           2023.12.12           haa95532_0  
 certifi                   2024.2.2         py39haa95532_0  
 cffi                      1.16.0           py39h2bbff1b_0  
+chardet                   5.2.0                    pypi_0    pypi
 charset-normalizer        3.3.2                    pypi_0    pypi
 colorama                  0.4.6            py39haa95532_0  
 comm                      0.2.1            py39haa95532_0  
@@ -31,13 +33,17 @@ debugpy                   1.6.7            py39hd77b12b_0
 decorator                 5.1.1              pyhd3eb1b0_0  
 defusedxml                0.7.1              pyhd3eb1b0_0  
 dill                      0.3.8                    pypi_0    pypi
+django                    4.2.11                   pypi_0    pypi
 exceptiongroup            1.2.0            py39haa95532_0  
 executing                 0.8.3              pyhd3eb1b0_0  
+ffmpeg                    1.4                      pypi_0    pypi
+ffmpeg-python             0.2.0                    pypi_0    pypi
 filelock                  3.13.1                   pypi_0    pypi
 fonttools                 4.49.0                   pypi_0    pypi
 fqdn                      1.5.1                    pypi_0    pypi
 frozenlist                1.4.1                    pypi_0    pypi
 fsspec                    2024.2.0                 pypi_0    pypi
+future                    1.0.0                    pypi_0    pypi
 huggingface-hub           0.21.4                   pypi_0    pypi
 icu                       73.1                 h6c2663c_0  
 idna                      3.6                      pypi_0    pypi
@@ -53,6 +59,7 @@ jinja2                    3.1.3            py39haa95532_0
 joblib                    1.3.2                    pypi_0    pypi
 jpeg                      9e                   h2bbff1b_1  
 json5                     0.9.6              pyhd3eb1b0_0  
+jsonpickle                3.0.3                    pypi_0    pypi
 jsonpointer               2.4                      pypi_0    pypi
 jsonschema                4.19.2           py39haa95532_0  
 jsonschema-specifications 2023.7.1         py39haa95532_0  
@@ -118,6 +125,7 @@ pure_eval                 0.2.2              pyhd3eb1b0_0
 pyarrow                   15.0.1                   pypi_0    pypi
 pyarrow-hotfix            0.6                      pypi_0    pypi
 pycparser                 2.21               pyhd3eb1b0_0  
+pydub                     0.25.1                   pypi_0    pypi
 pygments                  2.15.1           py39haa95532_1  
 pyparsing                 3.1.2                    pypi_0    pypi
 pyqt                      5.15.10          py39hd77b12b_0  
@@ -128,6 +136,7 @@ python-dateutil           2.9.0.post0              pypi_0    pypi
 python-fastjsonschema     2.16.2           py39haa95532_0  
 python-json-logger        2.0.7            py39haa95532_0  
 pytz                      2024.1                   pypi_0    pypi
+pyvis                     0.3.1                    pypi_0    pypi
 pywin32                   305              py39h2bbff1b_0  
 pywinpty                  2.0.10           py39h5da7b33_0  
 pyyaml                    6.0.1            py39h2bbff1b_0  
@@ -153,6 +162,7 @@ soundfile                 0.12.1                   pypi_0    pypi
 soupsieve                 2.5              py39haa95532_0  
 soxr                      0.3.7                    pypi_0    pypi
 sqlite                    3.41.2               h2bbff1b_0  
+sqlparse                  0.4.4                    pypi_0    pypi
 stack_data                0.2.0              pyhd3eb1b0_0  
 sympy                     1.12                     pypi_0    pypi
 terminado                 0.17.1           py39haa95532_0  
@@ -179,6 +189,7 @@ webencodings              0.5.1            py39haa95532_1
 websocket-client          0.58.0           py39haa95532_4  
 wheel                     0.41.2           py39haa95532_0  
 widgetsnbextension        4.0.10           py39haa95532_0  
+wikipedia                 1.4.0                    pypi_0    pypi
 win_inet_pton             1.1.0            py39haa95532_0  
 winpty                    0.4.3                         4  
 xxhash                    3.4.1                    pypi_0    pypi
