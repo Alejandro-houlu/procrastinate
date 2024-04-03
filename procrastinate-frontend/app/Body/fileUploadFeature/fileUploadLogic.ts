@@ -79,27 +79,27 @@ export const useFileUploadLogic = () => {
     return formData;
   };
 
-  const uploadFormData = async (formData: FormData) => {
-    return new Response(null, {
-      status: 200,
-      statusText: 'OK',
-      headers: new Headers({
-        'Content-Type': 'application/json', // Adjust content type if necessary
-      }),
-    });
-  };
-
   // const uploadFormData = async (formData: FormData) => {
-  //   try {
-  //     const response = await fetch(FILE_UPLOAD_API, {
-  //       method: POST,
-  //       body: formData,
-  //     });
-  //     return response;
-  //   } catch (error) {
-  //     throw new Error('Error uploading file: ' + error.message);
-  //   }
+  //   return new Response(null, {
+  //     status: 200,
+  //     statusText: 'OK',
+  //     headers: new Headers({
+  //       'Content-Type': 'application/json', // Adjust content type if necessary
+  //     }),
+  //   });
   // };
+
+  const uploadFormData = async (formData: FormData) => {
+    try {
+      const response = await fetch(FILE_UPLOAD_API, {
+        method: POST,
+        body: formData,
+      });
+      return response;
+    } catch (error) {
+      throw new Error('Error uploading file: ' + error);
+    }
+  };
 
   const handleUploadSuccess = () => {
     console.log(SUCCESS_MSG);
