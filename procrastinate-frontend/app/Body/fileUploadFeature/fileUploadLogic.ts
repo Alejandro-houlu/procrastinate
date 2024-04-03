@@ -3,28 +3,30 @@ import { AllowedFileType, allFileTypes } from './models';
 import { ERROR_MSG_INVALID_FILE, SUCCESS_MSG, CONSOLE_ERROR_MSG } from './strings';
 import { FILE_UPLOAD_API, POST } from '../api/requestUrl';
 import { FileUploadRequestBody } from '../api/requestBody';
+import { FileUploadResponse } from '../api/responses';
 
 export const useFileUploadLogic = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploadSuccess, setUploadSuccess] = useState<boolean>(false);
+  const [result, setResult] = useState<string>('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     validateAndSetFile(file);
   };
 
-  const handleDragOver: React.DragEventHandler<HTMLDivElement> = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
+  // const handleDragOver: React.DragEventHandler<HTMLDivElement> = (e) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  // };
 
-  const handleDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    validateAndSetFile(e.dataTransfer.files?.[0]);
-  };
+  // const handleDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   validateAndSetFile(e.dataTransfer.files?.[0]);
+  // };
 
   const handleFileDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
@@ -49,25 +51,29 @@ export const useFileUploadLogic = () => {
     return extension ? `.${extension}` as AllowedFileType : undefined;
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-    try {
-      const formData = prepareFormData(selectedFile);
-      const response = await uploadFormData(formData);
-      if (response.ok) {
-        handleUploadSuccess();
-      } else {
-        handleUploadError();
-      }
-    } catch (error) {
-      handleUploadError(error);
+const handleUpload = async () => {
+  if (!selectedFile) return;
+  try {
+    const formData = prepareFormData(selectedFile);
+    const response = await uploadFormData(formData);
+    console.log(response);
+    // Check if response is defined and has a 'result' property
+    if (response && response.result) {
+      handleUploadSuccess(response);
+    } else {
+      handleUploadError();
     }
-  };
+  } catch (error) {
+    handleUploadError(error);
+  }
+};
+
+  
 
   const prepareFormData = (selectedFile: File) => {
     const requestBody: FileUploadRequestBody = {
       username: 'jane12',
-      email: 'jane@gmail.com',
+      password: 'woohoo',
       audioFile: selectedFile
     };
 
@@ -75,7 +81,6 @@ export const useFileUploadLogic = () => {
     for (const [key, value] of Object.entries(requestBody)) {
       formData.append(key, value.toString());
     }
-    formData.append('audioFile', selectedFile);
     return formData;
   };
 
@@ -89,30 +94,47 @@ export const useFileUploadLogic = () => {
   //   });
   // };
 
+  // const uploadFormData = async (formData: FormData) => {
+  //   try {
+  //     const response = await fetch(FILE_UPLOAD_API, {
+  //       method: POST,
+  //       body: formData,
+  //     });
+  //     return response;
+  //   } catch (error) {
+  //     throw new Error('Error uploading file: ' + error);
+  //   }
+  // };
+
   const uploadFormData = async (formData: FormData) => {
-    try {
-      const response = await fetch(FILE_UPLOAD_API, {
-        method: POST,
-        body: formData,
-      });
-      return response;
-    } catch (error) {
-      throw new Error('Error uploading file: ' + error);
-    }
+    // Simulate API response delay (optional)
+    // setTimeout(() => {
+    // Mock response data
+    const mockResponse: FileUploadResponse = {
+      result: "This is a sample file for the speech-to-text notebook. This is meant as a test audio to try out whether Whisper works to actually decode the audio into word tokens. Check. Check. One, two, three, four. Zero. Over."
+    };
+  
+    // Update state with mock response
+    //   console.log(mockResponse);
+    // }, 1000); // Simulated delay of 1 second (1000 milliseconds)
+    return mockResponse;
   };
 
-  const handleUploadSuccess = () => {
+  const handleUploadSuccess = (response:FileUploadResponse) => {
     console.log(SUCCESS_MSG);
+    // setResult(resultAsString)
     setUploadSuccess(true);
+    setResult(JSON.stringify(response.result));
   };
 
   const handleUploadError = (error?: any) => {
     console.error(CONSOLE_ERROR_MSG, error);
   };
 
-  const handleUploadButtonClick = () => {
+  const selectFileButtonClick = () => {
     setUploadProgress(0);
     setUploadSuccess(false);
+    setSelectedFile(null);
   };
 
   const handleFile = (file: File | undefined) => {
@@ -132,9 +154,10 @@ export const useFileUploadLogic = () => {
     errorMessage,
     uploadProgress,
     uploadSuccess,
+    result,
     handleFileChange,
     handleUpload,
-    handleUploadButtonClick,
+    handleUploadButtonClick: selectFileButtonClick,
     handleFileDrop
   };
 };

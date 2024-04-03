@@ -38,7 +38,7 @@ const theme = {
         padding: '1rem',
       },
     bodyContent: {
-        maxWidth: '800px',
+        maxWidth: 'auto',
         margin: '0 auto',
         padding: '2rem',
       },

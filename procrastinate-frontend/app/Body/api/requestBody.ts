@@ -1,5 +1,5 @@
 export type FileUploadRequestBody = {
   username: String,
-  email: String,
+  password: String,
   audioFile: File, 
 };
