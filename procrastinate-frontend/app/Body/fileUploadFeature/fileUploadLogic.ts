@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AllowedFileType, allFileTypes } from './models';
 import { ERROR_MSG_INVALID_FILE, SUCCESS_MSG, CONSOLE_ERROR_MSG } from './strings';
-import { FILE_UPLOAD_API, POST } from '../api/requestUrl';
+import { ENDPOINTS, HTTP_METHODS, getAPI } from '../api/requestUrl';
 import { FileUploadRequestBody } from '../api/requestBody';
 import { FileUploadResponse } from '../api/responses';
 
@@ -16,17 +16,6 @@ export const useFileUploadLogic = () => {
     const file = e.target.files?.[0];
     validateAndSetFile(file);
   };
-
-  // const handleDragOver: React.DragEventHandler<HTMLDivElement> = (e) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  // };
-
-  // const handleDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   validateAndSetFile(e.dataTransfer.files?.[0]);
-  // };
 
   const handleFileDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
@@ -84,41 +73,32 @@ const handleUpload = async () => {
     return formData;
   };
 
-  // const uploadFormData = async (formData: FormData) => {
-  //   return new Response(null, {
-  //     status: 200,
-  //     statusText: 'OK',
-  //     headers: new Headers({
-  //       'Content-Type': 'application/json', // Adjust content type if necessary
-  //     }),
-  //   });
-  // };
+  const mockResponse: FileUploadResponse = {
+    result: "This is a sample file for the speech-to-text notebook. This is meant as a test audio to try out whether Whisper works to actually decode the audio into word tokens. Check. Check. One, two, three, four. Zero. Over."
+  };
 
-  // const uploadFormData = async (formData: FormData) => {
+  const uploadFormData = async (formData: FormData): Promise<FileUploadResponse> => {
+    return mockResponse;
+  };
+
+  //TODO: Replace mockAPI after API connection is working
+  // const uploadFormData = async (formData: FormData): Promise<FileUploadResponse> => {
   //   try {
-  //     const response = await fetch(FILE_UPLOAD_API, {
-  //       method: POST,
+  //     const response = await fetch(getAPI(ENDPOINTS.FILE_UPLOAD), {
+  //       method: HTTP_METHODS.POST,
   //       body: formData,
   //     });
-  //     return response;
+  
+  //     if (response.ok) {
+  //       const responseData: FileUploadResponse = await response.json();
+  //       return responseData;
+  //     } else {
+  //       throw new Error('Failed to upload file: ' + response.statusText);
+  //     }
   //   } catch (error) {
   //     throw new Error('Error uploading file: ' + error);
   //   }
   // };
-
-  const uploadFormData = async (formData: FormData) => {
-    // Simulate API response delay (optional)
-    // setTimeout(() => {
-    // Mock response data
-    const mockResponse: FileUploadResponse = {
-      result: "This is a sample file for the speech-to-text notebook. This is meant as a test audio to try out whether Whisper works to actually decode the audio into word tokens. Check. Check. One, two, three, four. Zero. Over."
-    };
-  
-    // Update state with mock response
-    //   console.log(mockResponse);
-    // }, 1000); // Simulated delay of 1 second (1000 milliseconds)
-    return mockResponse;
-  };
 
   const handleUploadSuccess = (response:FileUploadResponse) => {
     console.log(SUCCESS_MSG);

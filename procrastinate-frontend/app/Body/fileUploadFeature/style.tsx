@@ -1,37 +1,12 @@
-
-import styled, {css} from 'styled-components';
+import styled from 'styled-components';
 
 export const FileInput = styled.input`
-  display: none; /* Hide the default file input */
+  display: none;
 `;
-
-
 
 export const FileName = styled.span`
   margin-left: 1rem;
 `;
-
-// export const CatProgressBarContainer = styled.div`
-//   width: 100%;
-//   height: 50px;
-//   background-color: #f0f0f0;
-//   border-radius: 4px;
-//   margin-top: 0.5rem;
-//   overflow: hidden;
-//   ${props =>
-//     props.uploadsuccess &&
-//     css`
-//       display: none;
-//     `}
-// `;
-
-// export const CatProgressBar = styled.div`
-//   width: 100%;
-//   height: 100%;
-//   background-image: url(${catImage});
-//   background-size: cover;
-//   clipPath: inset(0 ${props => 100 - props.progress}% 0 0);
-// `;
 
 export const AllowedFileTypes = [
   'application/pdf',
@@ -91,7 +66,6 @@ export const DragDropArea = styled.div`
 export const SelectFileButton = styled.label`
   background-color: transparent;
   border: 2px solid #fff;
-  color: #fff;
   padding: 0.5rem 1rem;
   cursor: pointer;
   border-radius: 4px;
@@ -103,8 +77,7 @@ export const SelectFileButton = styled.label`
 
 // Start upload button
 export const StartUploadButton = styled.label`
-  background-color: #8080D7;
-  color: #fff;
+  background-color: ${props =>props.theme.colors.secondary};
   padding: 0.5rem 1rem;
   cursor: pointer;
   border-radius: 4px;
@@ -122,6 +95,6 @@ export const SuccessMessage = styled.div`
 
 // Results
 export const Results = styled.div`
-  margin-top: 20px; /* Adjust as needed */
+  margin-top: 20px;
   text-align: center;
 `;
