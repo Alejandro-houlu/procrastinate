@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AllowedFileType, allFileTypes } from './models';
 import { ERROR_MSG_INVALID_FILE, SUCCESS_MSG, CONSOLE_ERROR_MSG } from './strings';
 import { ENDPOINTS, HTTP_METHODS, getAPI } from '../api/requestUrl';
-import { FileUploadRequestBody } from '../api/requestBody';
+import { FileUploadRequestBody, getTokenFromLocalStorage } from '../api/requestBody';
 import { FileUploadResponse } from '../api/responses';
 
 export const useFileUploadLogic = () => {
@@ -46,7 +46,6 @@ const handleUpload = async () => {
     const formData = prepareFormData(selectedFile);
     const response = await uploadFormData(formData);
     console.log(response);
-    // Check if response is defined and has a 'result' property
     if (response && response.result) {
       handleUploadSuccess(response);
     } else {
@@ -56,8 +55,6 @@ const handleUpload = async () => {
     handleUploadError(error);
   }
 };
-
-  
 
   const prepareFormData = (selectedFile: File) => {
     const requestBody: FileUploadRequestBody = {
@@ -78,14 +75,20 @@ const handleUpload = async () => {
   };
 
   const uploadFormData = async (formData: FormData): Promise<FileUploadResponse> => {
+    console.log(getTokenFromLocalStorage());
     return mockResponse;
   };
 
   //TODO: Replace mockAPI after API connection is working
   // const uploadFormData = async (formData: FormData): Promise<FileUploadResponse> => {
   //   try {
+  //     const token = getTokenFromLocalStorage();
   //     const response = await fetch(getAPI(ENDPOINTS.FILE_UPLOAD), {
   //       method: HTTP_METHODS.POST,
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`,
+  //       },
   //       body: formData,
   //     });
   
