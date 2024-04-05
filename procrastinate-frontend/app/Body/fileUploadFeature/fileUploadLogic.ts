@@ -45,7 +45,7 @@ const handleUpload = async () => {
   if (!selectedFile) return;
   try {
     const headers = {
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqYW5lMTIiLCJpYXQiOjE3MTIzMjQxNzEsImV4cCI6MTcxMjQxMDU3MSwicm9sZXMiOlt7ImF1dGhvcml0eSI6IlJPTEVfVVNFUiJ9XX0.fUW_Bv5Dx6qZuOAS_il9fWZQM7u3QSkbD9uM6-rq_OU',
+      'Authorization': 'Bearer ',
     }
     const formData = prepareFormData(selectedFile);
     const response = await uploadFormData(formData,headers);
