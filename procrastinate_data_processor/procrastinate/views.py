@@ -41,7 +41,9 @@ def authToken(request):
 @jwt_Middleware.authenticated_required
 def speechToText(request):
 
-    print('hello')
+    print('hello from speech to text api')
+    speechToText_location = 'speechToText'
+    summarizedText_location = 'summarizedTextFile'
 
     try:
         data = json.loads(request.body.decode('utf-8'))
@@ -66,19 +68,32 @@ def speechToText(request):
     # return the file path for ml model to pick up the file 
     file_path = services.download_and_save_file(upload)
 
-    # result map contains the output path - static/output and the transcribed text
-    result_map = ml_model.execute_speech_to_text_model(file_path, uploadId)
+    if('audio' in contentType.lower()):
+        # result map contains the output path - static/output and the transcribed text
+        speechToTextResult_map = ml_model.execute_speech_to_text_model(file_path, uploadId)
 
-    # Upload result file to s3 bucket and get its url
-    result_url = services.upload_result(result_map['output_path'], uploadId, username)
-    print('Result url: ' + result_url)
+        # Upload result file to s3 bucket and get its url
+        speechToText_url = services.upload_result(speechToTextResult_map['output_path'], uploadId, username, speechToText_location)
+        print('Speech to text url: ' + speechToText_url)
 
-    # Persist the result url in the db
-    services.update_db_uploads_resultUrl(uploadId,result_url)
+        # Persist the result url in the db
+        services.update_db_uploads_url(uploadId,speechToText_url,'speechToTextFile')
+
+        # Summarization of text
+        result_map = ml_model.execute_text_summarization(speechToTextResult_map['output_path'],uploadId)
+
+    else:
+        result_map = ml_model.execute_text_summarization(file_path,uploadId)
+
+    # Upload summarized text to s3 bucket and get its url
+    summarizedText_url = services.upload_result(result_map['output_path'],uploadId, username, summarizedText_location )
+
+    # Persist the result url into the db
+    services.update_db_uploads_url(uploadId,summarizedText_url,'summarizedTextFile')
 
     response_data_map = {
-        'result_url': result_url,
-        'result': result_map['transcribed_text'],
+        'result_url': summarizedText_url,
+        'result': result_map['summarized_text'],
         'username': username
     }
     response_data_json = json.dumps(response_data_map)
