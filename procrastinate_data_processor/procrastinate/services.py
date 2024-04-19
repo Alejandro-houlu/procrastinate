@@ -22,6 +22,14 @@ def create_save_path(contentType, uploadId):
         save_path_audio = os.path.join(settings.STATIC_DIR, 'audio',uploadId)
         print('Save path (audio)',save_path_audio)
         return save_path_audio
+    elif 'pdf' in contentType.lower():
+        save_path_text = os.path.join(settings.STATIC_DIR,'text',uploadId + '.pdf')
+        print('Save path (text)', save_path_text)
+        return save_path_text
+    elif 'text' in contentType.lower():
+        save_path_text = os.path.join(settings.STATIC_DIR,'text',uploadId + '.txt')
+        print('Save path (text)', save_path_text)
+        return save_path_text
     else:
         print('Unknown file type')
 
@@ -42,8 +50,8 @@ def download_and_save_file(upload):
         print('An error occured in download and save method')
         return None 
 
-def upload_result(output_path, uploadId, username):
-    s3_path = os.path.join('Procrastinate','Procrastinate '+ username,'result',uploadId)
+def upload_result(output_path, uploadId, username, location):
+    s3_path = os.path.join('Procrastinate','Procrastinate '+ username,location,uploadId)
     content_type, _ = mimetypes.guess_type(output_path)
     try:
         s3.upload_file(output_path, bucket_name, s3_path,
@@ -55,13 +63,17 @@ def upload_result(output_path, uploadId, username):
         print('An error occured in upload result service')
         return None
     
-    result_url = f"https://procrastinatingbucket.sgp1.digitaloceanspaces.com/{s3_path}"
+    file_url = f"https://procrastinatingbucket.sgp1.digitaloceanspaces.com/{s3_path}"
 
-    return result_url
+    return file_url
 
-def update_db_uploads_resultUrl(id,new_value):
-    num_of_rows = Uploads.objects.filter(upload_id=id).update(result_url=new_value)
+def update_db_uploads_url(id,new_value,type):
+    if type == 'speechToTextFile':
+        num_of_rows = Uploads.objects.filter(upload_id=id).update(speechToText_url=new_value)
+    elif type == 'summarizedTextFile':
+        num_of_rows = Uploads.objects.filter(upload_id=id).update(result_url=new_value)
+
     if not num_of_rows:
-        print('Update db was not successful')
+        print('Update db was not successful for type = ' + type)
     else:
-        print('Db sucessfully updated')
+        print('Db sucessfully updated for type = ' + type)
