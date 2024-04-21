@@ -39,6 +39,7 @@ def download_and_save_file(upload):
     try:
         print(upload.content_url)
         response = requests.get(upload.content_url)
+        upload.content_type = response.headers.get('content-type')
         save_path = create_save_path(upload.content_type, upload.upload_id)
 
         if response.status_code == 200:
@@ -53,6 +54,8 @@ def download_and_save_file(upload):
 def upload_result(output_path, uploadId, username, location):
     s3_path = os.path.join('Procrastinate','Procrastinate '+ username,location,uploadId)
     content_type, _ = mimetypes.guess_type(output_path)
+    print(content_type)
+    
     try:
         s3.upload_file(output_path, bucket_name, s3_path,
                         ExtraArgs={'ACL': 'public-read',
@@ -72,6 +75,9 @@ def update_db_uploads_url(id,new_value,type):
         num_of_rows = Uploads.objects.filter(upload_id=id).update(speechToText_url=new_value)
     elif type == 'summarizedTextFile':
         num_of_rows = Uploads.objects.filter(upload_id=id).update(result_url=new_value)
+    elif type == 'knowledgeGraphFile':
+        num_of_rows = Uploads.objects.filter(upload_id=id).update(knowledge_graph_url=new_value)
+
 
     if not num_of_rows:
         print('Update db was not successful for type = ' + type)

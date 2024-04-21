@@ -44,7 +44,7 @@ public class ProcrastinateController {
             @RequestPart MultipartFile audioFile,
             @RequestHeader("Authorization") String jwtToken){
 
-        logger.log(Level.INFO, "From procrastinate controller >>>");
+        logger.log(Level.INFO, "From procrastinate controller (speech to text api) >>>");
         logger.log(Level.INFO, "Username > " + username);
         logger.log(Level.INFO, "Email > " + email);
         logger.info(jwtToken);
@@ -52,7 +52,6 @@ public class ProcrastinateController {
         Uploads upload = s3UploadSvc.uploadToS3(username, audioFile);
         uploadSvc.saveUpload(upload);
 
-        //Todo send upload to django
         jwtToken = jwtToken.substring(7);
 
         upload = dataSvc.processSpeechToText(upload, jwtToken);
@@ -62,7 +61,104 @@ public class ProcrastinateController {
 
         JsonObject jsonObject = Json.createObjectBuilder()
                 .add("result",upload.getResult())
+                .add("result_url",upload.getResultUrl())
+                .add("username",upload.getUsername())
+                .add("uploadId", upload.getUploadId())
                 .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonObject.toString());
+
+    }
+
+    @PostMapping("/createSummary")
+    @PreAuthorize("hasRole('USER') or hasRole('PREMIUM') or hasRole('ADMIN')")
+    public ResponseEntity<String>createSummary(
+            @RequestPart String username,
+            @RequestPart(required = false) MultipartFile file, 
+            @RequestPart(required = false) String file_url,
+            @RequestPart String email,
+            @RequestPart(required = false) String uploadId,
+            @RequestHeader("Authorization") String jwtToken){
+
+        logger.log(Level.INFO, "From procrastinate controller (Summary api) >>>");
+        jwtToken = jwtToken.substring(7);
+
+        Uploads upload = new Uploads();
+        upload.setUsername(username);
+
+        if(file_url != null){
+            logger.info("Create summary came with file url");
+            upload.setContentUrl(file_url);
+            upload.setUploadId(uploadId);
+        }
+        else{
+            logger.info("Create summary came with a text file");
+            upload = s3UploadSvc.uploadToS3(username, file);
+            uploadSvc.saveUpload(upload);
+        }
+
+ 
+        upload = dataSvc.createSummary(upload, jwtToken);
+        logger.info("Result from /createSummary >>>>>");
+        logger.info(upload.getResult());
+
+        JsonObject jsonObject = Json.createObjectBuilder()
+                .add("result",upload.getResult())
+                .add("result_url",upload.getResultUrl())
+                .add("username",upload.getUsername())
+                .add("uploadId", upload.getUploadId())
+                .build();
+        
+        logger.info("End of create Summary");
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsonObject.toString());
+
+    }
+
+    @PostMapping("/createMindmap")
+    @PreAuthorize("hasRole('USER') or hasRole('PREMIUM') or hasRole('ADMIN')")
+    public ResponseEntity<String>createMindMap(
+        @RequestPart (required = false) MultipartFile textFile,
+        @RequestPart (required = false) String uploadId,
+        @RequestPart String username,
+        @RequestHeader("Authorization") String jwtToken){
+
+        logger.info("Start of create mindmap >>>");
+        jwtToken = jwtToken.substring(7);
+
+        Uploads upload = new Uploads();
+
+        if(textFile != null){
+            logger.info("User performed straight from upload to mindmap");
+            upload = s3UploadSvc.uploadToS3(username, textFile);
+            uploadSvc.saveUpload(upload); 
+        }
+        else if (uploadId != null){
+            logger.info("User performs create mindmap after an upload");
+            upload = uploadSvc.getUploadbyId(uploadId);
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file or uploadId received");
+        }
+
+        logger.info(upload.toString());
+
+        try {
+            upload = dataSvc.createMindmap(upload, jwtToken);
+            logger.info("Result from create mindmap >>>>");
+            logger.info(upload.getMindmapUrl());
+        } catch (Exception e) {
+            logger.info("Data processor failed at createMindmap");
+        }
+        logger.info(upload.toString());
+
+        JsonObject jsonObject = Json.createObjectBuilder()
+                .add("result_url",upload.getMindmapUrl())
+                .add("username",upload.getUsername())
+                .add("uploadId", upload.getUploadId())
+                .build();
+        
+        logger.info("End of create mindmap");
 
         return ResponseEntity.status(HttpStatus.OK).body(jsonObject.toString());
 

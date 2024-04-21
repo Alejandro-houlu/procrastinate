@@ -43,7 +43,6 @@ def speechToText(request):
 
     print('hello from speech to text api')
     speechToText_location = 'speechToText'
-    summarizedText_location = 'summarizedTextFile'
 
     try:
         data = json.loads(request.body.decode('utf-8'))
@@ -79,11 +78,48 @@ def speechToText(request):
         # Persist the result url in the db
         services.update_db_uploads_url(uploadId,speechToText_url,'speechToTextFile')
 
-        # Summarization of text
-        result_map = ml_model.execute_text_summarization(speechToTextResult_map['output_path'],uploadId)
-
     else:
-        result_map = ml_model.execute_text_summarization(file_path,uploadId)
+        return HttpResponse({'Error:': 'Wrong file format'}, content_type='application/json',
+                        status=400)
+
+    response_data_map = {
+        'result_url': speechToText_url,
+        'result': speechToTextResult_map['transcribed_text'],
+        'username': username,
+        'uploadId': uploadId
+    }
+    response_data_json = json.dumps(response_data_map)
+    
+    return HttpResponse(response_data_json, content_type='application/json',
+                        status=200)
+
+@csrf_exempt
+@require_POST
+@jwt_Middleware.authenticated_required
+def createSummary(request):
+    print('hello from create summary api')
+
+    summarizedText_location = 'summarizedTextFile'
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception as ex:
+        print('error in json load', ex)
+
+    username = data.get('username')
+    uploadId = data.get('uploadId')
+    contentUrl = data.get('contentUrl')
+
+    upload = Uploads()
+    upload.username = username
+    upload.upload_id = uploadId
+    upload.content_url = contentUrl
+    print(upload)
+
+    # return the file path for ml model to pick up the file
+    # I am doing this again because I want to eventually not use the app's file system and fully use our s3 bucket
+    file_path = services.download_and_save_file(upload)
+    result_map = ml_model.execute_text_summarization(file_path,uploadId)
 
     # Upload summarized text to s3 bucket and get its url
     summarizedText_url = services.upload_result(result_map['output_path'],uploadId, username, summarizedText_location )
@@ -94,9 +130,51 @@ def speechToText(request):
     response_data_map = {
         'result_url': summarizedText_url,
         'result': result_map['summarized_text'],
-        'username': username
+        'username': username,
+        'uploadId': uploadId
     }
     response_data_json = json.dumps(response_data_map)
     
     return HttpResponse(response_data_json, content_type='application/json',
-                        status=200)
+                    status=200)
+
+@csrf_exempt
+@require_POST
+@jwt_Middleware.authenticated_required
+def createKnowledgeGraph(request):
+    print('hello from create knowledge graph api')
+
+    knowledgeGraph_location = 'knowledgeGraph'
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception as ex:
+        print('error in json load', ex)
+
+    username = data.get('username')
+    uploadId = data.get('uploadId')
+    contentUrl = data.get('contentUrl')
+
+    upload = Uploads()
+    upload.username = username
+    upload.upload_id = uploadId
+    upload.content_url = contentUrl
+    print(upload)
+
+    file_path = services.download_and_save_file(upload)
+    print(file_path)
+    knowledgeGraph_output_path = ml_model.execute_text_to_knowledge(file_path,uploadId,128)
+    print('Output path to be used to upload to s3 ' + knowledgeGraph_output_path)
+    knowledgeGraph_url = services.upload_result(knowledgeGraph_output_path,uploadId, username, knowledgeGraph_location)
+    print(knowledgeGraph_url)
+    services.update_db_uploads_url(uploadId,knowledgeGraph_url,'knowledgeGraphFile')
+
+    response_data_map = {
+        'knowledge_graph_url': knowledgeGraph_url,
+        'username': username,
+        'uploadId': uploadId
+    }
+    response_data_json = json.dumps(response_data_map)
+
+    return HttpResponse(response_data_json, content_type='application/json',
+                    status=200)

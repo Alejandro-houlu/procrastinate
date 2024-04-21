@@ -20,6 +20,7 @@ class Uploads(models.Model):
     result_url = models.URLField(max_length=264, null=True)
     content_type = models.CharField(max_length=32)
     speechToText_url = models.URLField(max_length=264, null=True)
+    knowledge_graph_url = models.URLField(max_length=264, null=True)
 
     def __str__(self) -> str:
         return f"Upload ID: {self.upload_id}, User ID: {self.username}, Content URL: {self.content_url}, Content Type: {self.content_type}"
