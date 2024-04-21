@@ -76,10 +76,84 @@ public class DataProcessorService {
 
         upload.setResultUrl(respBodyJsonObject.getString("result_url"));
         upload.setResult(respBodyJsonObject.getString("result"));
+        upload.setUsername(respBodyJsonObject.getString("username"));
+        upload.setUploadId(respBodyJsonObject.getString("uploadId"));
 
         return upload;
-
     }
+
+    public Uploads createSummary(Uploads upload, String jwtToken){
+        String url = UriComponentsBuilder.fromUriString(apiUrl)
+            .path("/createSummary")
+            .toUriString();
+        
+        JsonObject uploadJson = upload.toJson(jwtToken);
+
+        logger.info("From Data service (create summary)");
+        logger.info("Url: " + url);
+
+        RequestEntity<String> req = RequestEntity
+                .post(url)
+                .body(uploadJson.toString());
+        logger.info(req.toString());
+        
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> resp = restTemplate.exchange(req, String.class);
+
+        JsonObject respBodyJsonObject = createJsonObj(resp);
+
+        upload.setResultUrl(respBodyJsonObject.getString("result_url"));
+        upload.setResult(respBodyJsonObject.getString("result"));
+        upload.setUsername(respBodyJsonObject.getString("username"));
+        upload.setUploadId(respBodyJsonObject.getString("uploadId"));
+        
+        return upload;
+        
+    }
+
+    @SuppressWarnings("null")
+    public Uploads createMindmap(Uploads upload, String jwtToken){
+        String url = generateReqUrl("/createKnowledgeGraph");
+        JsonObject uploadJson = upload.toJson(jwtToken);
+        logger.info("From Data service (create mindmap )");
+        logger.info("Url: " + url);
+        logger.info(uploadJson.toString());
+        JsonObject resp = null;
+
+        try {
+            resp = callApi(uploadJson, url);
+        } catch (Exception e) {
+            logger.info("DataProcessorService >>> createMindMap failed");
+        }
+        logger.info(upload.toString());
+        upload.setMindmapUrl(resp.getString("knowledge_graph_url"));
+
+        return upload;
+    }
+
+    public JsonObject callApi(JsonObject body, String url){
+
+        RequestEntity<String> req = RequestEntity
+                .post(url)
+                .body(body.toString());
+        logger.info(req.toString());
+        
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> resp = restTemplate.exchange(req, String.class);
+
+        JsonObject respBodyJsonObject = createJsonObj(resp);
+
+        return respBodyJsonObject;
+    }
+
+    public String generateReqUrl(String path){
+        String url = UriComponentsBuilder.fromUriString(apiUrl)
+            .path(path)
+            .toUriString();
+        return url;
+    }
+
+
     public JsonObject createJsonObj(ResponseEntity<String> resp) {
 
     JsonObject result = null;
