@@ -26,7 +26,7 @@ class Uploads(models.Model):
         return f"Upload ID: {self.upload_id}, User ID: {self.username}, Content URL: {self.content_url}, Content Type: {self.content_type}"
 
 class Topics(models.Model):
-    topic_id = models.CharField(max_length=8, primary_key=True)
+    topic_id = models.AutoField(primary_key=True)
     topic = models.CharField(max_length=128, unique=True)
 
 class Topics_Uploads(models.Model):

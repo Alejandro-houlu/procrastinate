@@ -3,9 +3,10 @@ import os
 from datasets.load import requests
 from django.http import response
 
-from procrastinate.models import Uploads
+from procrastinate.models import Topics, Topics_Uploads, Uploads
 from procrastinate_data_processor import settings
 import boto3
+from django.db import transaction
 
 bucket_name ='procrastinatingbucket'
 
@@ -83,3 +84,34 @@ def update_db_uploads_url(id,new_value,type):
         print('Update db was not successful for type = ' + type)
     else:
         print('Db sucessfully updated for type = ' + type)
+
+def db_insert_topic(topic):
+
+    # Check if the topic already exists in the database
+    existing_topic = Topics.objects.filter(topic=topic).first()
+
+    if existing_topic:
+        # If the topic exists, return its ID
+        existing_topic_id = existing_topic.topic_id  # pk is the primary key (ID) of the object
+        print('Topic already exists in the database. ID:', existing_topic_id)
+        return existing_topic
+    else:
+        # If the topic does not exist, create a new one
+        new_topic = Topics(topic=topic)
+        new_topic.save()
+        new_topic_id = new_topic.topic_id  # pk is the primary key (ID) of the object
+        print('New topic inserted into the database. ID:', new_topic_id)
+        return new_topic
+    
+def db_insert_topic_upload(topicObj, upload):
+
+    new_topic_upload = Topics_Uploads(topic_id = topicObj, upload_id=upload)
+    new_topic_upload.save()
+    print('Topic_upload table updated. TopicId: ', new_topic_upload.topic_id, 'and UploadId: ', new_topic_upload.upload_id)
+
+@transaction.atomic
+def execute_db_batch_save_uploads_topics(top_topics,upload):
+
+    for topic in top_topics:
+        topicObj = db_insert_topic(topic)
+        db_insert_topic_upload(topicObj,upload)

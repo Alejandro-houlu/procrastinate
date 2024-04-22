@@ -106,6 +106,7 @@ public class DataProcessorService {
         upload.setResult(respBodyJsonObject.getString("result"));
         upload.setUsername(respBodyJsonObject.getString("username"));
         upload.setUploadId(respBodyJsonObject.getString("uploadId"));
+        upload.setTopics(respBodyJsonObject.getString("topics"));
         
         return upload;
         

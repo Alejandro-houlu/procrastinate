@@ -16,6 +16,7 @@ public class Uploads {
     private String resultUrl;
     private String result;
     private String mindmapUrl;
+    private String topics;
 
     public String getUploadId() {
         return uploadId;
@@ -58,7 +59,13 @@ public class Uploads {
     }
     public void setMindmapUrl(String mindmapUrl) {
         this.mindmapUrl = mindmapUrl;
-    } 
+    }
+    public String getTopics() {
+        return topics;
+    }
+    public void setTopics(String topics) {
+        this.topics = topics;
+    }
 
     @Override
     public String toString() {
@@ -98,9 +105,5 @@ public class Uploads {
 
         return upload;
     }
-
-
-
-
     
 }
