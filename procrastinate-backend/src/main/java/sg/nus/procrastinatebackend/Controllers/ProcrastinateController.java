@@ -107,6 +107,7 @@ public class ProcrastinateController {
                 .add("result_url",upload.getResultUrl())
                 .add("username",upload.getUsername())
                 .add("uploadId", upload.getUploadId())
+                .add("topics", upload.getTopics())
                 .build();
         
         logger.info("End of create Summary");

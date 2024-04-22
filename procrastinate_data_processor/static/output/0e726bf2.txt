@@ -1,0 +1,1 @@
+Lecturer: We're going to try to understand broadly what computer graphics is all about, where does it show up in the world. We're also going to get our hands on a first algorithm for making images from 3D shapes.

@@ -17,6 +17,24 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import wikipedia
 from pyvis.network import Network
 import IPython
+from pypdf import PdfReader
+from datasets.load import requests
+import re
+import gensim
+from gensim.utils import simple_preprocess
+import nltk
+nltk.download("stopwords")
+import spacy
+nlp=spacy.load('en_core_web_sm',disable=['parser', 'ner'])
+from nltk.corpus import stopwords
+import gensim.corpora as corpora
+from gensim.models import CoherenceModel
+from pprint import pprint
+
+
+
+
+
 
 
 
@@ -349,3 +367,139 @@ def save_network_html(kb, uploadId):
     
     return output_path
 # End of knowledge based section ------------------------------------------------------------
+
+#Start of LDA section -----------------------------------------------------------------------
+def execute_lda_model(url, uploadId):
+    docs = list(extract_documents_from_pdf(url,uploadId))
+    print('from lda model >>>>>')
+    print(docs)
+    docs = clean_document(docs)
+    processed_data = list(tokeniz(docs))
+
+    stop_words = stopwords.words('english')
+    stop_words.extend(['from', 'subject', 're', 'edu', 'use','for'])
+    data_wo_stopwords = remove_stopwords(processed_data,stop_words)
+
+    bigram = gensim.models.Phrases(processed_data, min_count=5, threshold=100)
+    bigram_mod = gensim.models.phrases.Phraser(bigram)
+    data_bigrams = create_bigrams(data_wo_stopwords,bigram_mod)
+    data_lemmatized = lemmatize(data_bigrams, allowed_postags=[ 'NOUN', 'ADJ', 'VERB'])
+
+    gensim_dictionary = corpora.Dictionary(data_lemmatized)
+    texts = data_lemmatized
+    gensim_corpus = [gensim_dictionary.doc2bow(text) for text in texts]
+    [[(gensim_dictionary[id], freq) for id, freq in cp] for cp in gensim_corpus[:4]]
+
+    lda_model = gensim.models.ldamodel.LdaModel(
+        corpus=gensim_corpus, id2word=gensim_dictionary, num_topics=15, random_state=100, 
+        update_every=1, chunksize=100, passes=10, alpha='auto', per_word_topics=True)
+    
+    coherence_model_lda = CoherenceModel(model=lda_model, texts=data_lemmatized, dictionary=gensim_dictionary, coherence='c_v')
+
+    coherence_lda = coherence_model_lda.get_coherence()
+    print('\nCoherence Score: ', coherence_lda)
+
+    top_topics = lda_model.top_topics(gensim_corpus)
+
+    # Average topic coherence is the sum of topic coherences of all topics, divided by the number of topics.
+    avg_topic_coherence = sum([t[1] for t in top_topics]) / 15
+    print('Average topic coherence: %.4f.' % avg_topic_coherence)
+    pprint(top_topics)
+
+    # Find the topic with the highest coherence score
+    top_top_word = []
+    seen_words = set()
+
+    for topic_words, coherence_score in top_topics:
+        # Get the word with the highest probability in the topic
+        top_word = max(topic_words, key=lambda x: x[0])
+        print(top_word)
+        
+        if top_word[1] not in seen_words:
+            top_top_word.append(top_word)
+            seen_words.add(top_word[1]) 
+            
+    # Print the top word and its probability
+        print("Top Word in Topic:")
+        print("Word:", top_word[1])
+        print("Coherence Score:", top_word[0])
+        print()
+    print(top_top_word)
+    print(seen_words)
+
+    # Sort the subjects based on coherence scores
+    sorted_subjects = sorted(top_top_word, key=lambda x: x[0], reverse=True)
+    print(sorted_subjects)
+
+    # Get the top 5 subjects
+    top_5_subjects = sorted_subjects[:5]
+    top_subjects_to_be_returned = []
+
+    # Print the top 5 subjects
+    for i, (coherence_score,subject) in enumerate(top_5_subjects, 1):
+        top_subjects_to_be_returned.append(subject)
+        print(f"Top Subject {i}:")
+        print("Subject:", subject)
+        print("Coherence Score:", coherence_score)
+
+    return top_subjects_to_be_returned
+
+
+def extract_documents_from_pdf(url, uploadId):
+
+    output_path = os.path.join(static_dir, 'temp',uploadId)
+    print(output_path) 
+    print(url)
+
+    response = requests.get(url)
+    contentType = response.headers.get('content-type')        
+    with open(output_path, 'wb') as f:
+            f.write(response.content)
+
+    if 'pdf' in contentType.lower():
+        with open(output_path, 'rb') as f:
+            pdf_reader = PdfReader(f)
+            for page_num in range(len(pdf_reader.pages)):
+                page = pdf_reader.pages[page_num]
+                yield page.extract_text()
+    elif 'text' in contentType.lower():
+        content = response.content.decode('utf-8')
+        yield content
+            
+def clean_document(docs):
+    cleaned_docs = []
+
+    for doc in docs:
+        punc_removed = re.sub('[,\.!?]', '', doc)
+        case_lowered = punc_removed.lower()
+        fillers_removed_doc = re.sub(
+            r'\b(?:okay|right|going|thing|kind|really|thing|one|lot|see|look|might|actually|now|different|pretty|think|kind|maybe|want|need|understand|well|like|little|could|say|also|all|can|will|welcome|our|first|lecture|to|up|try|broadly|where|is|about|the|just|do|get)\b',
+            '',
+            case_lowered
+        )
+        cleaned_docs.append(fillers_removed_doc)
+    return cleaned_docs
+    
+def tokeniz(sentences):
+
+    for sentence in sentences:
+        yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))
+
+def remove_stopwords(texts,stop_words):
+
+    return [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
+
+def lemmatize(texts, allowed_postags=['NOUN', 'ADJ', 'VERB']):
+
+    texts_op = []
+
+    for sent in texts:
+
+        doc = nlp(" ".join(sent))
+        texts_op.append([token.lemma_ for token in doc if token.pos_ in allowed_postags])
+
+    return texts_op
+
+def create_bigrams(texts,bigram_mod):
+
+    return [bigram_mod[doc] for doc in texts]

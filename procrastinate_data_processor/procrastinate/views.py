@@ -124,12 +124,18 @@ def createSummary(request):
     # Upload summarized text to s3 bucket and get its url
     summarizedText_url = services.upload_result(result_map['output_path'],uploadId, username, summarizedText_location )
 
+    # Get topics from the file
+    top_topics = ml_model.execute_lda_model(contentUrl,uploadId)
+    services.execute_db_batch_save_uploads_topics(top_topics,upload)
+
     # Persist the result url into the db
     services.update_db_uploads_url(uploadId,summarizedText_url,'summarizedTextFile')
 
+    topics_string = ', '.join(top_topics)
     response_data_map = {
         'result_url': summarizedText_url,
         'result': result_map['summarized_text'],
+        'topics': topics_string,
         'username': username,
         'uploadId': uploadId
     }
