@@ -35,6 +35,7 @@ export const FormInput = styled.input`
   width: 100%;
   margin-bottom: 10px;
   padding: 8px;
+  color: black;
 `;
 
 export const SignInSubmitButton = styled.button`

@@ -1,18 +1,24 @@
 import React from 'react';
 import SignInForm from './signInForm';
-import { signIn } from './signInLogic';
 import { SIGN_IN_TITLE } from '../strings';
 import { ContentHeader, Title } from '../style';
+import { signIn } from '../api/apiCalls';
+import { SignInRequestBody } from '../api/requestBody';
 
 const SignInContainer: React.FC = () => {
   const handleSignIn = async (username: string, password: string) => {
+    const requestBody: SignInRequestBody = {
+      username: username,
+      password: password,
+    }
     try {
-      const response = await signIn(username, password);
+      //const formdata = objectToFormData(requestBody)
+      const response = await signIn(requestBody);
+      console.log("sign in response",response);
       localStorage.setItem('token', response.token);
       // Redirect the user to the dashboard or another page upon successful sign-in
     } catch (error) {
       console.error('Sign-in failed:', error);
-      // Handle sign-in failure (e.g., display error message)
     }
   };
 
@@ -25,3 +31,4 @@ const SignInContainer: React.FC = () => {
 };
 
 export default SignInContainer;
+

@@ -4,12 +4,14 @@ export type FileUploadRequestBody = {
   audioFile: File, 
 };
 
-export const getTokenFromLocalStorage = (): string | null => {
-  return localStorage.getItem('token');
+export type SignInRequestBody = {
+  username: String,
+  password: String,
 };
 
-  export type SignUpRequestBody = {
+export type SignUpRequestBody = {
   username: String,
   email: String,
   password: String, 
 };
+
