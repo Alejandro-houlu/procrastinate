@@ -4,6 +4,7 @@ import { ERROR_MSG_INVALID_FILE, SUCCESS_MSG, CONSOLE_ERROR_MSG } from './string
 import { ENDPOINTS, HTTP_METHODS, getAPI } from '../api/requestUrl';
 import { FileUploadRequestBody, getTokenFromLocalStorage } from '../api/requestBody';
 import { FileUploadResponse } from '../api/responses';
+import { blob } from 'stream/consumers';
 
 export const useFileUploadLogic = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -43,8 +44,11 @@ export const useFileUploadLogic = () => {
 const handleUpload = async () => {
   if (!selectedFile) return;
   try {
+    const headers = {
+      'Authorization': 'Bearer ',
+    }
     const formData = prepareFormData(selectedFile);
-    const response = await uploadFormData(formData);
+    const response = await uploadFormData(formData,headers);
     console.log(response);
     if (response && response.result) {
       handleUploadSuccess(response);
@@ -60,12 +64,13 @@ const handleUpload = async () => {
     const requestBody: FileUploadRequestBody = {
       username: 'jane12',
       password: 'woohoo',
+      email: 'jane@gmail.com',
       audioFile: selectedFile
     };
 
     const formData = new FormData();
     for (const [key, value] of Object.entries(requestBody)) {
-      formData.append(key, value.toString());
+      value instanceof File? formData.append(key, value) : formData.append(key, value.toString());
     }
     return formData;
   };
@@ -74,38 +79,33 @@ const handleUpload = async () => {
     result: "This is a sample file for the speech-to-text notebook. This is meant as a test audio to try out whether Whisper works to actually decode the audio into word tokens. Check. Check. One, two, three, four. Zero. Over."
   };
 
-  const uploadFormData = async (formData: FormData): Promise<FileUploadResponse> => {
-    console.log(getTokenFromLocalStorage());
-    return mockResponse;
-  };
-
-  //TODO: Replace mockAPI after API connection is working
   // const uploadFormData = async (formData: FormData): Promise<FileUploadResponse> => {
-  //   try {
-  //     const token = getTokenFromLocalStorage();
-  //     const response = await fetch(getAPI(ENDPOINTS.FILE_UPLOAD), {
-  //       method: HTTP_METHODS.POST,
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`,
-  //       },
-  //       body: formData,
-  //     });
-  
-  //     if (response.ok) {
-  //       const responseData: FileUploadResponse = await response.json();
-  //       return responseData;
-  //     } else {
-  //       throw new Error('Failed to upload file: ' + response.statusText);
-  //     }
-  //   } catch (error) {
-  //     throw new Error('Error uploading file: ' + error);
-  //   }
+  //   return mockResponse;
   // };
+
+  // TODO: Replace mockAPI after API connection is working
+  const uploadFormData = async (formData: FormData, headers: Record<string, string>): Promise<FileUploadResponse> => {
+
+    try {
+      const response = await fetch(getAPI(ENDPOINTS.FILE_UPLOAD), {  
+        method: HTTP_METHODS.POST,
+        body: formData,
+        headers: headers
+      });
+  
+      if (response.ok) {
+        const responseData: FileUploadResponse = await response.json();
+        return responseData;
+      } else {
+        throw new Error('Failed to upload file: ' + response.statusText);
+      }
+    } catch (error) {
+      throw new Error('Error uploading file: ' + error);
+    }
+  };
 
   const handleUploadSuccess = (response:FileUploadResponse) => {
     console.log(SUCCESS_MSG);
-    // setResult(resultAsString)
     setUploadSuccess(true);
     setResult(JSON.stringify(response.result));
   };

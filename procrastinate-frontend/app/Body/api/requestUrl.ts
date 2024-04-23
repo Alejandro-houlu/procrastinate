@@ -8,7 +8,7 @@
 
  const ENDPOINT_PATHS = {
     [ENDPOINTS.SIGN_UP]: 'auth/signup',
-    [ENDPOINTS.FILE_UPLOAD]: '/speechToText',
+    [ENDPOINTS.FILE_UPLOAD]: 'speechToText',
     [ENDPOINTS.SIGN_IN]:'auth/signin'
   };
   
