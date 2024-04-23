@@ -159,7 +159,7 @@ def execute_text_to_knowledge(filepath, uploadId, span_length, verbose=True):
             text = ""
             for page_num in range(len(reader.pages)):
                 page = reader.pages[page_num]
-                textFile += page.extract_text()
+                text += page.extract_text()
     else:
         with open(filepath) as src:
             text = src.read()
