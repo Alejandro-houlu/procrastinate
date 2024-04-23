@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { SignUpForm, FormInput, SubmitButton, ContentHeader, Title } from './style';
-import { signUp, SignUpFormData } from './signupLogic';
 import { SIGN_UP_SUCCESS_MSG, SIGN_UP_TITLE } from '../strings';
+import { signUp } from '../api/apiCalls';
+import { SignUpFormData } from '../api/interfaces';
 
 const SignUpContainer: React.FC = () => {
   const [formData, setFormData] = useState<SignUpFormData>({
