@@ -6,3 +6,6 @@ export const SIGN_IN_TITLE = 'Sign In';
 export const SIGN_IN_ERROR ='Error signing in: ';
 export const SIGN_IN_LABEL_USERNAME='Username:';
 export const SIGN_IN_LABEL_PWD='Password:';
+
+export const FILE_UPLOAD_ERROR = 'Failed to upload file: '
+export const FILE_UPLOADING_ERROR = 'Error uploading file: ';

@@ -1,6 +1,11 @@
 export type FileUploadRequestBody = {
   username: String,
-  password: String,
   email: String,
   audioFile: File, 
+};
+
+export type SignUpRequestBody = {
+  username: String,
+  email: String,
+  password: String, 
 };
