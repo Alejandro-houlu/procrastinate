@@ -19,12 +19,14 @@ class Uploads(models.Model):
     content_url = models.URLField(max_length=264)
     result_url = models.URLField(max_length=264, null=True)
     content_type = models.CharField(max_length=32)
+    speechToText_url = models.URLField(max_length=264, null=True)
+    knowledge_graph_url = models.URLField(max_length=264, null=True)
 
     def __str__(self) -> str:
         return f"Upload ID: {self.upload_id}, User ID: {self.username}, Content URL: {self.content_url}, Content Type: {self.content_type}"
 
 class Topics(models.Model):
-    topic_id = models.CharField(max_length=8, primary_key=True)
+    topic_id = models.AutoField(primary_key=True)
     topic = models.CharField(max_length=128, unique=True)
 
 class Topics_Uploads(models.Model):

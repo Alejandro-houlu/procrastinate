@@ -1,5 +1,5 @@
 const allowedFileTypes = [
-    '.pdf', '.doc', '.docx', '.mp4', '.mp3', '.wav', '.m4a', // File extensions
+    '.pdf', '.doc', '.docx', '.mp4', '.mp3', '.wav', '.m4a','.txt', // File extensions
     'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // MIME types
     'audio/mpeg', 'audio/wav', 'audio/x-m4a' // Additional audio MIME types
   ] as const;
